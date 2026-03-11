@@ -1,0 +1,48 @@
+The Attention Mechanism in Machine Learning is a technique that allows models to focus 
+on the most important parts of input data when making predictions. It assigns different 
+weights to different elements hence helping the model prioritize relevant information 
+instead of treating all inputs equally. It forms the foundation of advanced models 
+like Transformers and BERT and is widely used in Natural Language Processing (NLP) and 
+Computer Vision. 
+• It improves how models handle long sequences in data. 
+• It helps capture relationships between distant elements in a sequence. 
+• Enhances interpretability by showing which parts of input influenced the output. 
+• Widely applied in translation, summarization, image captioning and speech 
+processing. 
+Types of Attention Mechanisms 
+• Soft Attention: Differentiable mechanism using softmax and is widely used in NLP 
+and transformers. 
+• Hard Attention: Non-differentiable and uses sampling to select specific parts. It is 
+trained using reinforcement learning. 
+• Self-Attention: Enables each input element to attend to other aspects in the same 
+sequence. 
+• Multi-Head Attention: Uses multiple attention heads to capture diverse features 
+from different representation subspaces. 
+• Additive Attention: Uses a feed-forward neural network to calculate attention 
+scores instead of dot products. 
+To know more about the types of attention mechanism read: Types of Attention 
+Mechanism. 
+Working 
+The working of attention mechanism can be broken down into several key steps: 
+Step 1: Input Encoding: The input sequence is first encoded using an encoder like RNN, 
+LSTM, GRU or Transformer to generate hidden states representing the input context. 
+Step 2: Query, Key and Value Vectors: Each input is transformed into: 
+• Query (Q): Represents what we’re looking for. 
+• Key (K): Represents what information each input contains. 
+• Value (V): Contains the actual information of each input. 
+These are linear transformations of the input embeddings. 
+Step 3: Key–Value Pair Creation: Each input is represented as a pair: 
+• Key (K): Represents the “address” or identifier of information. 
+• Value (V): Represents the actual content. 
+Step 4: Similarity Computation: The model computes similarity between the query and 
+each key to determine relevance. 
+Score(𝑠,𝑖)={
+ℎ𝑠 ⋅𝑦𝑖 (Dot Product)
+ℎ𝑠𝑇𝑊𝑦𝑖 (General)
+𝑣𝑇tanh⁡(𝑊[ℎ𝑠;𝑦𝑖]) (Concat)
+ 
+Where: 
+• ℎ𝑠: Encoder hidden state at position s 
+• 𝑦𝑖: Decoder hidden state at position i 
+• 𝑊: Weight matrix 
+• 𝑣: Weight vecto

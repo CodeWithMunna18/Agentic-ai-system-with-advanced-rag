@@ -1,0 +1,6 @@
+google-genai>=1.0.0               # Gemini API - NEW SDK (replaces google-generativeai)
+pypdf>=4.0.0                  # PDF text extraction
+python-docx>=1.1.0            # DOCX text extraction
+python-dotenv>=1.0.0          # loads .env file safely
+rich>=13.0.0                  # pretty terminal output (optional but great for learning)
+chromadb>=0.5.0               # local vector database (Phase 3)
