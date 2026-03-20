@@ -64,7 +64,7 @@ class Generator:
     Takes a prompt string, returns a RAGResponse.
     """
 
-    def __init__(self, model: str = "gemini-2.0-flash"):
+    def __init__(self, model: str = "gemini-1.5-flash"):
         """
         Args:
             model: Gemini model to use for generation
@@ -82,60 +82,62 @@ class Generator:
         self,
         prompt: str,
         question: str,
-        retrieved_chunks: list,       # list[RetrievedChunk] from retriever
-        temperature: float = 0.1,     # low = more focused/factual answers
+        retrieved_chunks: list,
+        temperature: float = 0.1,
+        max_retries: int = 3,
     ) -> RAGResponse:
         """
         Call Gemini with the RAG prompt and return a structured response.
-
-        WHY temperature=0.1?
-        Temperature controls randomness. For RAG Q&A we want:
-        - Low randomness → answer stays close to retrieved context
-        - High temperature → creative but may stray from the facts
-        0.1 is the sweet spot for factual grounded answers.
-
-        Args:
-            prompt:            the complete RAG prompt from prompt_builder
-            question:          original user question (for the response object)
-            retrieved_chunks:  chunks used (for source attribution)
-            temperature:       0.0 = deterministic, 1.0 = creative
-
-        Returns:
-            RAGResponse with answer + source metadata
+        Retries automatically on rate limit errors with exponential backoff.
         """
-        try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=temperature,
-                    max_output_tokens=1024,
-                ),
-            )
+        import time
 
-            answer = response.text or "No response generated."
+        sources = [
+            {
+                "source_file":  chunk.source_file,
+                "score":        chunk.score,
+                "chunk_index":  chunk.chunk_index,
+                "preview":      chunk.text[:100] + "...",
+            }
+            for chunk in retrieved_chunks
+        ]
 
-            # Build source metadata for citations
-            sources = [
-                {
-                    "source_file":  chunk.source_file,
-                    "score":        chunk.score,
-                    "chunk_index":  chunk.chunk_index,
-                    "preview":      chunk.text[:100] + "...",
-                }
-                for chunk in retrieved_chunks
-            ]
+        for attempt in range(1, max_retries + 1):
+            try:
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=temperature,
+                        max_output_tokens=1024,
+                    ),
+                )
+                return RAGResponse(
+                    question=question,
+                    answer=response.text or "No response generated.",
+                    sources=sources,
+                    model=self.model,
+                )
 
-            return RAGResponse(
-                question=question,
-                answer=answer,
-                sources=sources,
-                model=self.model,
-            )
+            except Exception as e:
+                err = str(e)
+                is_rate_limit = "429" in err or "RESOURCE_EXHAUSTED" in err
+                is_last_attempt = attempt == max_retries
 
-        except Exception as e:
-            return RAGResponse(
-                question=question,
-                answer=f"Generation failed: {e}",
-                model=self.model,
-            )
+                if is_rate_limit and not is_last_attempt:
+                    wait = 2 ** attempt        # 2s, 4s, 8s
+                    print(f"  ⏳ Rate limited. Waiting {wait}s before retry "
+                          f"(attempt {attempt}/{max_retries})...")
+                    time.sleep(wait)
+                else:
+                    if is_rate_limit:
+                        msg = (
+                            "Rate limit hit. Options:\n"
+                            "  1. Wait 60 seconds and retry\n"
+                            "  2. Switch model: set model='gemini-1.5-flash' in RAGPipeline\n"
+                            "  3. Check quota: https://ai.dev/rate-limit"
+                        )
+                    else:
+                        msg = f"Generation failed: {e}"
+                    return RAGResponse(question=question, answer=msg,
+                                       sources=sources, model=self.model)

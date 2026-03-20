@@ -33,7 +33,7 @@ class RAGPipeline:
         vector_store: VectorStore,
         top_k: int = 5,
         relevance_threshold: float = 0.5,
-        model: str = "gemini-2.0-flash",
+        model: str = "gemini-1.5-flash",
     ):
         """
         Args:
