@@ -1,0 +1,25 @@
+What is Retrieval-Augmented Generation?
+
+Retrieval-Augmented Generation, or RAG, is an AI framework that enhances large language models by giving them access to external knowledge. Instead of relying solely on information learned during training, a RAG system first retrieves relevant documents from a knowledge base, then uses those documents as context when generating a response.
+
+Why RAG Matters
+
+Large language models are powerful but have significant limitations. They can hallucinate — confidently stating facts that are simply wrong. Their knowledge has a cutoff date, making them unaware of recent events. They cannot access private or proprietary data unless it was in training.
+
+RAG solves all three problems. By retrieving from a live knowledge base, the model always has access to current, accurate, and domain-specific information at query time.
+
+How RAG Works Step by Step
+
+The process begins with document ingestion. Raw documents are loaded, cleaned, and split into smaller chunks. Each chunk is then converted into a vector embedding — a list of numbers that captures the semantic meaning of the text. These embeddings are stored in a vector database.
+
+When a user asks a question, the question is also converted to an embedding. The system then searches the vector database for chunks whose embeddings are mathematically closest to the question embedding. This is called similarity search.
+
+The top matching chunks are retrieved and injected into the prompt sent to the language model. The model reads this context and generates an answer grounded in the retrieved information — not just its training data.
+
+Key Components of a RAG System
+
+A complete RAG system has five core components. First, the document store holds the raw source documents. Second, the chunker splits documents into retrievable pieces. Third, the embedding model converts text to vectors. Fourth, the vector database stores and indexes those vectors for fast search. Fifth, the language model generates the final answer using retrieved context.
+
+Chunking is the Most Underrated Step
+
+Most developers focus on the language model and overlook chunking. But chunking strategy directly determines retrieval quality. Chunks that are too large contain noise that confuses the embedding model. Chunks that are too small lose necessary context for answering questions. The overlap between adjacent chunks ensures that ideas near chunk boundaries are never lost. Getting chunking right is the difference between a RAG system that works and one that merely appears to work.

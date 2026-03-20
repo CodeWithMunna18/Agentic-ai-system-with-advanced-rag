@@ -1,0 +1,25 @@
+Understanding Vector Databases
+
+A vector database is a specialized storage system designed to store, index, and search high-dimensional vectors efficiently. Unlike traditional databases that search by exact value or range, vector databases search by similarity — finding vectors that are mathematically close to a query vector.
+
+Why Vector Databases Exist
+
+Modern AI models represent everything as vectors: text, images, audio, and video. A sentence like 'the cat sat on the mat' becomes a list of 768 numbers after passing through an embedding model. Finding similar sentences means finding vectors with small angular distance — a problem traditional SQL databases handle very poorly.
+
+Vector databases use specialized index structures like HNSW (Hierarchical Navigable Small World graphs) to make this search fast even across millions of vectors. HNSW builds a multi-layer graph where each node connects to its nearest neighbors, enabling approximate nearest neighbor search in milliseconds.
+
+ChromaDB vs Other Vector Databases
+
+ChromaDB is an open-source, embedded vector database designed for simplicity. It runs in-process with your Python application — no separate server needed. ChromaDB is ideal for prototypes, local development, and small-to-medium datasets up to a few million vectors.
+
+Pinecone is a managed cloud vector database offering serverless scaling. It handles billions of vectors with sub-10ms query latency and requires no infrastructure management. Pinecone is the production choice when you need scale beyond what local solutions offer.
+
+Weaviate and Qdrant are open-source alternatives that can run self-hosted or in the cloud. Both support hybrid search (vector + keyword) natively and offer more advanced filtering than ChromaDB.
+
+Similarity Metrics
+
+Vector databases support multiple distance metrics. Cosine similarity measures the angle between vectors — the standard choice for text embeddings because it is invariant to vector magnitude. Euclidean distance measures absolute distance in space — better for image embeddings. Dot product is the fastest to compute and works well when vectors are normalized.
+
+The Role of Vector Databases in RAG
+
+In a RAG system, the vector database is the memory. Every document chunk is stored as a vector. At query time, the user's question is embedded and the database returns the chunks whose vectors are closest. The quality of this retrieval step determines the quality of the final answer. A slow or inaccurate vector database creates a bottleneck that no language model can compensate for.
